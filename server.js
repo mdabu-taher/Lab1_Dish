@@ -11,7 +11,7 @@ const CONNECTION_URL = process.env.CONNECTION_URL;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files (like index.html) from the public folder
+// Serve static files from the public folder
 app.use(express.static('public'));
 
 // ---------------------------------------------------
@@ -20,9 +20,11 @@ app.use(express.static('public'));
 mongoose.connect(CONNECTION_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true
-}).then(() => {
+})
+.then(() => {
   console.log('Connected to MongoDB Atlas');
-}).catch((error) => {
+})
+.catch((error) => {
   console.error('Error connecting to MongoDB Atlas:', error);
 });
 
@@ -35,11 +37,15 @@ const dishSchema = new mongoose.Schema({
   preparationSteps: [String],
   cookingTime: Number, // In minutes
   origin: String,
-  // Custom field e.g. spiceLevel: value from 1 to 10
-  spiceLevel: Number,
+  // spiceLevel as a number from 0 to 5
+  spiceLevel: {
+    type: Number,
+    required: true,
+    min: 0,
+    max: 5
+  }
 });
 
-// The "Dish" model represents our dishes collection
 const Dish = mongoose.model('Dish', dishSchema);
 
 // ---------------------------------------------------
@@ -52,7 +58,8 @@ app.get('/api/dishes', async (req, res) => {
     const dishes = await Dish.find({});
     res.json(dishes);
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred' });
+    console.error('Error fetching dishes:', error);
+    res.status(500).json({ error: 'An error occurred while fetching dishes' });
   }
 });
 
@@ -65,14 +72,16 @@ app.get('/api/dishes/:name', async (req, res) => {
     }
     res.json(dish);
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred' });
+    console.error('Error fetching dish:', error);
+    res.status(500).json({ error: 'An error occurred while fetching the dish' });
   }
 });
 
 // POST: Add a new dish
 app.post('/api/dishes', async (req, res) => {
   try {
-    // Check if dish exists already by name
+    console.log("Received dish data:", req.body);
+    // Check if a dish with the same name already exists
     const existingDish = await Dish.findOne({ name: req.body.name });
     if (existingDish) {
       return res.status(409).json({ error: 'Dish already exists' });
@@ -81,6 +90,7 @@ app.post('/api/dishes', async (req, res) => {
     await newDish.save();
     res.status(201).json(newDish);
   } catch (error) {
+    console.error('Error adding dish:', error);
     res.status(500).json({ error: 'An error occurred when adding dish' });
   }
 });
@@ -88,12 +98,16 @@ app.post('/api/dishes', async (req, res) => {
 // PUT: Update an existing dish by its _id
 app.put('/api/dishes/:id', async (req, res) => {
   try {
+    if (req.body.spiceLevel) {
+      req.body.spiceLevel = Number(req.body.spiceLevel);
+    }
     const updatedDish = await Dish.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updatedDish) {
       return res.status(404).json({ error: 'Dish not found' });
     }
     res.json(updatedDish);
   } catch (error) {
+    console.error('Error updating dish:', error);
     res.status(500).json({ error: 'An error occurred when updating dish' });
   }
 });
@@ -107,6 +121,7 @@ app.delete('/api/dishes/:id', async (req, res) => {
     }
     res.json({ message: 'Dish deleted successfully' });
   } catch (error) {
+    console.error('Error deleting dish:', error);
     res.status(500).json({ error: 'An error occurred when deleting dish' });
   }
 });
