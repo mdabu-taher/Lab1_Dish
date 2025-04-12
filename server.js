@@ -7,11 +7,11 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const CONNECTION_URL = process.env.CONNECTION_URL;
 
-// Middleware to parse JSON and urlencoded data
+// Middleware to parse JSON and URL-encoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from the public folder
+// Serve static files from the public folder (e.g., index.html)
 app.use(express.static('public'));
 
 // ---------------------------------------------------
@@ -35,9 +35,13 @@ const dishSchema = new mongoose.Schema({
   name: { type: String, unique: true, required: true },
   ingredients: [String],
   preparationSteps: [String],
-  cookingTime: Number, // In minutes
+  cookingTime: {
+    type: Number,
+    required: true,
+    min: 1  // Ensure the cooking time is at least 1 minute
+  },
   origin: String,
-  // spiceLevel as a number from 0 to 5
+  // spiceLevel as a number, for example, between 0 and 5
   spiceLevel: {
     type: Number,
     required: true,
@@ -98,6 +102,9 @@ app.post('/api/dishes', async (req, res) => {
 // PUT: Update an existing dish by its _id
 app.put('/api/dishes/:id', async (req, res) => {
   try {
+    if (req.body.cookingTime) {
+      req.body.cookingTime = Number(req.body.cookingTime);
+    }
     if (req.body.spiceLevel) {
       req.body.spiceLevel = Number(req.body.spiceLevel);
     }
