@@ -4,133 +4,232 @@
   <meta charset="UTF-8">
   <title>Dish Recipes</title>
   <style>
+    /* Global Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
     body {
-      font-family: Arial, sans-serif;
-      margin: 30px;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background-color: #f4f6f8;
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
     }
-    form input, form select {
-      margin: 6px 4px;
-      padding: 6px;
-    }
-    table, th, td {
-      border: 1px solid black;
-      border-collapse: collapse;
-      padding: 8px;
-    }
-    table {
-      margin-top: 20px;
+
+    /* Container spans full width, centered text */
+    .container {
       width: 100%;
+      padding: 20px 40px;
+      text-align: center;
     }
-    button {
-      padding: 5px 10px;
-      cursor: pointer;
-      margin: 4px;
+
+    /* Headings */
+    h1 {
+      margin-bottom: 20px;
+      color: #222;
     }
+    h2 {
+      margin-top: 20px;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e2e2e2;
+      padding-bottom: 5px;
+      color: #333;
+    }
+
+    /* Message box for success/error feedback */
+    #message {
+      margin: 20px auto;
+      padding: 10px 20px;
+      width: 80%;
+      max-width: 500px;
+      border-radius: 4px;
+      display: none; /* hidden by default */
+      text-align: center;
+      font-weight: bold;
+    }
+    #message.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    #message.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    /* Form container: two rows -> first row for inputs, second row for the submit button */
+    #add-dish-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    /* Single row of all input fields */
+    .form-inputs {
+      display: flex;
+      flex-wrap: wrap; /* wrap on smaller screens if needed */
+      gap: 10px;
+      justify-content: center;
+    }
+
+    /* Default style for inputs */
+    .form-inputs input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    /* Make Ingredients and Preparation Steps wider (300px) */
+    .form-inputs input[name="ingredients"],
+    .form-inputs input[name="preparationSteps"] {
+      width: 300px;
+    }
+
+    /* Others remain 200px wide by default */
+    .form-inputs input:not([name="ingredients"]):not([name="preparationSteps"]) {
+      width: 200px;
+    }
+
+    /* Submit button styling */
     .submit-btn {
-      background-color: #4CAF50;
-      color: white;
+      background-color: #28a745;
+      color: #fff;
       border: none;
+      border-radius: 4px;
       padding: 8px 16px;
-    }
-    /* Update and Delete button styling */
-    .update-btn {
-      background-color: #4CAF50; /* Green */
-      color: white;
-      border: none;
-      padding: 5px 10px;
       cursor: pointer;
-      margin: 4px;
+      transition: background 0.3s ease;
+    }
+    .submit-btn:hover {
+      background-color: #218838;
+    }
+
+    /* Table styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+      background-color: #fff;
+    }
+    thead {
+      background-color: #e9ecef;
+    }
+    th, td {
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      text-align: left;
+      vertical-align: middle;
+    }
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    /* Update and Delete Buttons with consistent sizing */
+    .action-btn {
+      background-color: #007bff; /* default blue */
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      min-width: 100px;
+      text-align: center;
+      margin-right: 5px;
+    }
+    .update-btn {
+      background-color: #28a745; /* green */
+    }
+    .update-btn:hover {
+      background-color: #218838;
     }
     .delete-btn {
-      background-color: #f44336; /* Red */
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      cursor: pointer;
-      margin: 4px;
+      background-color: #dc3545; /* red */
     }
-    /* "Add New Dish" button styling */
+    .delete-btn:hover {
+      background-color: #c82333;
+    }
+
+    /* Optional button to reset the form and scroll to it */
     #new-dish-btn {
-      background-color: #008CBA; /* Blue */
-      color: white;
+      display: inline-block;
+      background-color: #007bff;
+      color: #fff;
       border: none;
-      padding: 8px 16px;
+      border-radius: 4px;
+      padding: 10px 20px;
       cursor: pointer;
+      transition: background 0.3s ease;
       margin-top: 20px;
     }
-    /* Confirmation message area */
-    #msg {
-      margin-top: 10px;
-      padding: 10px;
-      display: none;
-      border: 1px solid #ccc;
-    }
-    /* Message types */
-    #msg.success {
-      background-color: #dff0d8;
-      border-color: #d6e9c6;
-      color: #3c763d;
-    }
-    #msg.error {
-      background-color: #f2dede;
-      border-color: #ebccd1;
-      color: #a94442;
-    }
-    h1, h2 {
-      margin-top: 0;
+    #new-dish-btn:hover {
+      background-color: #0069d9;
     }
   </style>
 </head>
 <body>
-  <h1>Dish Recipes</h1>
+  <div class="container">
+    <h1>Dish Recipes</h1>
 
-  <!-- Message area for confirmations/errors -->
-  <div id="msg"></div>
+    <!-- Inline success/error message box -->
+    <div id="message"></div>
 
-  <!-- Form to add a new dish -->
-  <h2>Add New Dish</h2>
-  <form id="add-dish-form" autocomplete="off">
-    <input type="text" name="name" placeholder="Name" required autocomplete="off" />
-    <input type="text" name="ingredients" placeholder="Ingredients (comma separated)" required autocomplete="off" />
-    <input type="text" name="preparationSteps" placeholder="Preparation Steps (comma separated)" required autocomplete="off" />
-    <input type="number" name="cookingTime" placeholder="Cooking Time (min)" required autocomplete="off" min="1" />
-    <input type="text" name="origin" placeholder="Origin" required autocomplete="off" />
-    <!-- Spice Level input as a number (0 to 5) -->
-    <input type="number" name="spiceLevel" placeholder="Spice Level (0 to 5)" required autocomplete="off" min="0" max="5" step="1" />
-    <button type="submit" class="submit-btn">Add Dish</button>
-  </form>
-  
-  <!-- Table to display dishes -->
-  <h2>All Dishes</h2>
-  <table id="dishes-table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Ingredients</th>
-        <th>Preparation Steps</th>
-        <th>Cooking Time</th>
-        <th>Origin</th>
-        <th>Spice Level</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <!-- Add New Dish Form -->
+    <h2>Add New Dish</h2>
+    <form id="add-dish-form" autocomplete="off">
+      <!-- All 6 inputs in one row -->
+      <div class="form-inputs">
+        <input type="text" name="name" placeholder="Name" required />
+        <input type="text" name="ingredients" placeholder="Ingredients (comma separated)" required />
+        <input type="text" name="preparationSteps" placeholder="Preparation Steps (comma separated)" required />
+        <input type="number" name="cookingTime" placeholder="Cooking Time (min)" required min="1" />
+        <input type="text" name="origin" placeholder="Origin" required />
+        <input type="number" name="spiceLevel" placeholder="Spice Level (0-5)" required min="0" max="5" step="1" />
+      </div>
+
+      <!-- "Add Dish" button in second row, centered -->
+      <button type="submit" class="submit-btn">Add Dish</button>
+    </form>
+
+    <!-- Table of Dishes -->
+    <h2>All Dishes</h2>
+    <table id="dishes-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Ingredients</th>
+          <th>Preparation Steps</th>
+          <th>Cooking Time</th>
+          <th>Origin</th>
+          <th>Spice Level</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+  </div>
 
   <script>
     const API_URL = '/api/dishes';
 
-    // Utility function to display a message on screen
-    function showMessage(message, type = "success") {
-      const msgDiv = document.getElementById("msg");
-      msgDiv.textContent = message;
-      msgDiv.className = "";
-      msgDiv.classList.add(type);
-      msgDiv.style.display = "block";
-      // Hide the message after 3 seconds
-      setTimeout(() => { msgDiv.style.display = "none"; }, 3000);
+    // Display success or error message
+    function showMessage(msg, type = 'success') {
+      const messageDiv = document.getElementById('message');
+      messageDiv.textContent = msg;
+      messageDiv.className = type; // 'success' or 'error'
+      messageDiv.style.display = 'block';
+      setTimeout(() => {
+        messageDiv.style.display = 'none';
+      }, 3000);
     }
 
+    // Load dishes from server
     async function loadDishes() {
       try {
         const response = await fetch(API_URL);
@@ -147,18 +246,18 @@
             <td>${dish.origin}</td>
             <td>${dish.spiceLevel}</td>
             <td>
-              <button class="update-btn" onclick="showUpdateForm('${dish._id}', '${dish.name}', '${dish.ingredients}', '${dish.preparationSteps}', ${dish.cookingTime}, '${dish.origin}', ${dish.spiceLevel})">Update</button>
-              <button class="delete-btn" onclick="deleteDish('${dish._id}')">Delete</button>
+              <button class="action-btn update-btn" onclick="showUpdateForm('${dish._id}', '${dish.name}', '${dish.ingredients}', '${dish.preparationSteps}', ${dish.cookingTime}, '${dish.origin}', ${dish.spiceLevel})">Update</button>
+              <button class="action-btn delete-btn" onclick="deleteDish('${dish._id}')">Delete</button>
             </td>
           `;
           tbody.appendChild(tr);
         });
       } catch (error) {
         console.error('Error loading dishes:', error);
-        showMessage('Error loading dishes', 'error');
       }
     }
 
+    // POST: Add new dish
     document.getElementById('add-dish-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = new FormData(e.target);
@@ -170,21 +269,28 @@
         origin: formData.get('origin'),
         spiceLevel: Number(formData.get('spiceLevel'))
       };
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      if (response.status === 201) {
-        await loadDishes();
-        e.target.reset();
-        showMessage('Dish added successfully!', 'success');
-      } else {
-        const errorData = await response.json();
-        showMessage(errorData.error || 'Error adding dish', 'error');
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (response.ok) {
+          await loadDishes();
+          e.target.reset();
+          showMessage("Dish added successfully!", "success");
+        } else {
+          const errorData = await response.json();
+          showMessage(errorData.error || "Error adding dish", "error");
+        }
+      } catch (err) {
+        console.error('Error adding dish:', err);
+        showMessage("Error adding dish", "error");
       }
     });
 
+    // PUT: Update existing dish
     async function showUpdateForm(id, name, ingredients, preparationSteps, cookingTime, origin, spiceLevel) {
       const newName = prompt('Enter new name:', name);
       if (!newName) return;
@@ -193,6 +299,7 @@
       const newCookingTime = prompt('Enter new cooking time:', cookingTime) || cookingTime;
       const newOrigin = prompt('Enter new origin:', origin) || origin;
       const newSpiceLevel = prompt('Enter new spice level (0 to 5):', spiceLevel) || spiceLevel;
+
       const data = {
         name: newName,
         ingredients: newIngredients.split(',').map(i => i.trim()),
@@ -201,37 +308,51 @@
         origin: newOrigin,
         spiceLevel: Number(newSpiceLevel)
       };
-      const response = await fetch(`${API_URL}/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      if (response.ok) {
-        loadDishes();
-        showMessage('Dish updated successfully!', 'success');
-      } else {
-        const errorData = await response.json();
-        showMessage(errorData.error || 'Error updating dish', 'error');
+
+      try {
+        const response = await fetch(`${API_URL}/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (response.ok) {
+          loadDishes();
+          showMessage("Dish updated successfully!", "success");
+        } else {
+          const errorData = await response.json();
+          showMessage(errorData.error || "Error updating dish", "error");
+        }
+      } catch (err) {
+        console.error('Error updating dish:', err);
+        showMessage("Error updating dish", "error");
       }
     }
 
+    // DELETE: Remove dish
     async function deleteDish(id) {
       if (!confirm('Are you sure you want to delete this dish?')) return;
-      const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-      if (response.ok) {
-        loadDishes();
-        showMessage('Dish deleted successfully!', 'success');
-      } else {
-        const errorData = await response.json();
-        showMessage(errorData.error || 'Error deleting dish', 'error');
+      try {
+        const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+        if (response.ok) {
+          loadDishes();
+          showMessage("Dish deleted successfully!", "success");
+        } else {
+          const errorData = await response.json();
+          showMessage(errorData.error || "Error deleting dish", "error");
+        }
+      } catch (err) {
+        console.error('Error deleting dish:', err);
+        showMessage("Error deleting dish", "error");
       }
     }
 
+    // Reset form and scroll up
     function resetAndFocusForm() {
       document.getElementById('add-dish-form').reset();
       document.getElementById('add-dish-form').scrollIntoView({ behavior: "smooth" });
     }
 
+    // Load dishes on page load
     loadDishes();
   </script>
 </body>
