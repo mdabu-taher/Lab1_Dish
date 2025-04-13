@@ -21,15 +21,18 @@
       margin-top: 20px;
       width: 100%;
     }
-    /* Style for the "Add Dish" submit button */
+    button {
+      padding: 5px 10px;
+      cursor: pointer;
+      margin: 4px;
+    }
     .submit-btn {
-      background-color: #4CAF50; /* Green */
+      background-color: #4CAF50;
       color: white;
       border: none;
       padding: 8px 16px;
-      cursor: pointer;
     }
-    /* Style for Update and Delete buttons */
+    /* Update and Delete button styling */
     .update-btn {
       background-color: #4CAF50; /* Green */
       color: white;
@@ -46,7 +49,7 @@
       cursor: pointer;
       margin: 4px;
     }
-    /* Style for the new dish button */
+    /* "Add New Dish" button styling */
     #new-dish-btn {
       background-color: #008CBA; /* Blue */
       color: white;
@@ -55,6 +58,24 @@
       cursor: pointer;
       margin-top: 20px;
     }
+    /* Confirmation message area */
+    #msg {
+      margin-top: 10px;
+      padding: 10px;
+      display: none;
+      border: 1px solid #ccc;
+    }
+    /* Message types */
+    #msg.success {
+      background-color: #dff0d8;
+      border-color: #d6e9c6;
+      color: #3c763d;
+    }
+    #msg.error {
+      background-color: #f2dede;
+      border-color: #ebccd1;
+      color: #a94442;
+    }
     h1, h2 {
       margin-top: 0;
     }
@@ -62,7 +83,10 @@
 </head>
 <body>
   <h1>Dish Recipes</h1>
-  
+
+  <!-- Message area for confirmations/errors -->
+  <div id="msg"></div>
+
   <!-- Form to add a new dish -->
   <h2>Add New Dish</h2>
   <form id="add-dish-form" autocomplete="off">
@@ -71,7 +95,7 @@
     <input type="text" name="preparationSteps" placeholder="Preparation Steps (comma separated)" required autocomplete="off" />
     <input type="number" name="cookingTime" placeholder="Cooking Time (min)" required autocomplete="off" min="1" />
     <input type="text" name="origin" placeholder="Origin" required autocomplete="off" />
-    <!-- Spice Level input as a number with allowed range -->
+    <!-- Spice Level input as a number (0 to 5) -->
     <input type="number" name="spiceLevel" placeholder="Spice Level (0 to 5)" required autocomplete="off" min="0" max="5" step="1" />
     <button type="submit" class="submit-btn">Add Dish</button>
   </form>
@@ -92,9 +116,20 @@
     </thead>
     <tbody></tbody>
   </table>
-  
+
   <script>
     const API_URL = '/api/dishes';
+
+    // Utility function to display a message on screen
+    function showMessage(message, type = "success") {
+      const msgDiv = document.getElementById("msg");
+      msgDiv.textContent = message;
+      msgDiv.className = "";
+      msgDiv.classList.add(type);
+      msgDiv.style.display = "block";
+      // Hide the message after 3 seconds
+      setTimeout(() => { msgDiv.style.display = "none"; }, 3000);
+    }
 
     async function loadDishes() {
       try {
@@ -120,6 +155,7 @@
         });
       } catch (error) {
         console.error('Error loading dishes:', error);
+        showMessage('Error loading dishes', 'error');
       }
     }
 
@@ -142,9 +178,10 @@
       if (response.status === 201) {
         await loadDishes();
         e.target.reset();
+        showMessage('Dish added successfully!', 'success');
       } else {
         const errorData = await response.json();
-        alert(errorData.error || 'Error adding dish');
+        showMessage(errorData.error || 'Error adding dish', 'error');
       }
     });
 
@@ -171,9 +208,10 @@
       });
       if (response.ok) {
         loadDishes();
+        showMessage('Dish updated successfully!', 'success');
       } else {
         const errorData = await response.json();
-        alert(errorData.error || 'Error updating dish');
+        showMessage(errorData.error || 'Error updating dish', 'error');
       }
     }
 
@@ -182,9 +220,10 @@
       const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
       if (response.ok) {
         loadDishes();
+        showMessage('Dish deleted successfully!', 'success');
       } else {
         const errorData = await response.json();
-        alert(errorData.error || 'Error deleting dish');
+        showMessage(errorData.error || 'Error deleting dish', 'error');
       }
     }
 
