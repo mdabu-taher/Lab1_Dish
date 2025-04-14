@@ -6,9 +6,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Md Abu Taher",
   "license": "ISC",
-  "description": "",
+  "description": "Lab1",
   "dependencies": {
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
